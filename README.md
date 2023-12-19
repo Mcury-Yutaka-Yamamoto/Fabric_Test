@@ -5,6 +5,6 @@
 ここではUMLによる記述もたくさん目にすることになる。このUMLは私がホワイトボードに簡単にスケッチして、ペアパートナーであるあなたに私の考えを示すためのダイアグラムだと思ってほしい。UMLは、あなたと私を結ぶコミュニケーションツールとしてとても役立つ。
 
 トランザクションを表現する抽象クラスTransactionを図19-1に示す。このクラスはExecuteという名前のメソッドを持っている。これはもちろん、Commandパターンである。Transactionクラスの実装をリスト19-1に示す。
-![図19-1 Transactionインターフェース](https://prod-files-secure.s3.us-west-2.amazonaws.com/e759e211-d22b-41bf-8b06-73bcf2b74932/7f618b0b-1006-4e7b-8f74-fcb775e6e644/Untitled.png)
+
 
 図19-1 Transactionインターフェース
