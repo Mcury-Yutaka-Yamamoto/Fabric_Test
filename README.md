@@ -6,7 +6,7 @@
 
 トランザクションを表現する抽象クラスTransactionを図19-1に示す。このクラスはExecuteという名前のメソッドを持っている。これはもちろん、Commandパターンである。Transactionクラスの実装をリスト19-1に示す。
 
-<image src="/image/図19-1 Transactionインターフェース.png" alt="図19-1 Transactionインターフェース">
+<image src="/image/図19-1 Transactionインターフェース.png" alt="図19-1 Transactionインターフェース" title="図19-1 Transactionインターフェース">
 図19-1 Transactionインターフェース
 
 ## 19.1 従業員を追加するトランザクション
