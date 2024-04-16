@@ -15,3 +15,4 @@
 
 ## 19.1.1 給与データベース
 AddEmployeeTransactionクラスはPayrollDatabaseというクラスを使う(図19-2)。このクラスは既存のEmployeeオブジェクトをすべて管理しており、各EmployeeオブジェクトをempIDキー使ってDictionaryクラス(map)に登録している。また、このクラスは組合員のmemberIDをemp―IDと関連付けるためのDictionaryクラスも管理している。このクラスの構造を図19-3に示す。PayrollDatabaseはFacadeパターンの一例である (15.1「Facadeパターン」参照)。
+テスト
