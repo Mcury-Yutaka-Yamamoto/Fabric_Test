@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric.js</title>
+</head>
+<body>
+    <div>
+        <input type="radio" id="draw" name="mode" checked>
+        <label for="draw">ペン</label>
+        <input type="radio" id="erase" name="mode">
+        <label for="erase">消しゴム</label>
+    </div>
+    <div>
+        <button type="button" id="downloadPng">画像ダウンロード</button>
+    </div>
+    <br>
+    
+    <!-- お絵描きエリアの設定 -->
+    <canvas id="canvas" height="500" width="500" style="border-style: solid; border-color: black;"></canvas>
+    
+    <!-- Fabric.jsの読み込み -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
