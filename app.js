@@ -13,12 +13,7 @@ document.getElementById('clear-canvas').addEventListener('click', () => {
     canvas.backgroundColor = "white";
 });
 
-// 追加機能として、描画モードの切り替えと色の変更を実装
-document.getElementById('drawing-canvas').addEventListener('dblclick', () => {
-    canvas.isDrawingMode = !canvas.isDrawingMode;
-    alert(`描画モードが${canvas.isDrawingMode ? '有効' : '無効'}になりました`);
-});
-
+// 色の変更機能
 const colorInput = document.createElement('input');
 colorInput.type = 'color';
 colorInput.value = '#000000';
