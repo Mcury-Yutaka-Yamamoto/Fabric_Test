@@ -3,25 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fabric.js</title>
+    <title>お絵描きアプリ</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div>
-        <input type="radio" id="draw" name="mode">
-        <label for="draw">ペン</label>
-        <input type="radio" id="erase" name="mode">
-        <label for="erase">消しゴム</label>
-    </div>
-    <div>
-        <button type="button" id="downloadPng">画像ダウンロード</button>
-    </div>
-    <br>
-    
-    <!-- canvasの設定 -->
-    <canvas id="canvas" height="500" width="500" style="border-style: solid; border-color: black;"></canvas>
-    
-    <!-- Fabric.jsの読み込み -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
-    <script src="index.js"></script>
+<h1>お絵描きアプリ</h1>
+<div id="canvas-container">
+    <canvas id="drawing-canvas" width="800" height="600"></canvas>
+</div>
+<button id="clear-canvas">キャンバスをクリア</button>
+<button id="download-canvas">ダウンロード</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
