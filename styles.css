@@ -7,7 +7,7 @@ body {
 
 #canvas-container {
     border: 1px solid #ccc;
-    margin-top: 20px;
+    margin: 20px;
 }
 
 button {

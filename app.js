@@ -14,24 +14,14 @@ document.getElementById('clear-canvas').addEventListener('click', () => {
 });
 
 // 色の変更機能
-const colorInput = document.createElement('input');
-colorInput.type = 'color';
-colorInput.value = '#000000';
-colorInput.addEventListener('input', (event) => {
+document.getElementById('color-pallet').addEventListener('input', (event) => {
     canvas.freeDrawingBrush.color = event.target.value;
 });
-document.body.insertBefore(colorInput, document.getElementById('canvas-container'));
 
 // 描画の幅変更の追加
-const widthInput = document.createElement('input');
-widthInput.type = 'range';
-widthInput.min = '1';
-widthInput.max = '100';
-widthInput.value = '5';
-widthInput.addEventListener('input', (event) => {
+document.getElementById('widthInput').addEventListener('input', (event) => {
     canvas.freeDrawingBrush.width = parseInt(event.target.value, 10);
-});
-document.body.insertBefore(widthInput, document.getElementById('canvas-container'));
+})
 
 // キャンバスを画像としてダウンロードする機能
 document.getElementById('download-canvas').addEventListener('click', () => {
@@ -44,3 +34,4 @@ document.getElementById('download-canvas').addEventListener('click', () => {
     link.download = 'canvas.png';
     link.click();
 });
+
