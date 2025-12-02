@@ -7,25 +7,41 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<h1>お絵描きアプリ</h1>
+    <div class="container header_menu">
+        <h1>お絵描きアプリ</h1>
+    </div>
+    
+    <div class="container">
+        <div class="container left_menu">
+            <label>
+                <input type="color" id="color-pallet">
+            </label>
+    
+            <label>
+                <input type="range" min="1" max="100" value="5" id="widthInput">
+            </label>
+    
+            <button id="clear-canvas">キャンバスをクリア</button>
+    
+            <button id="download-canvas">ダウンロード</button>
+        </div>
+        <div id="canvas-container">
+            <canvas id="drawing-canvas" width="800" height="600"></canvas>
+        </div>
+        <div class="right_menu">
+            <div id="drawing-history"></div>
+            <button id="clear-history">履歴をクリア</button>
+            <button id="download-history">履歴をダウンロード</button>
+            <button id="undo">元に戻す</button>
+            <button id="redo">やり直し</button> 
+            <button id="save">保存</button>
+            <button id="load">読み込み</button> 
+        </div>
+    </div>
 
-<div id="canvas-container">
-    <canvas id="drawing-canvas" width="800" height="600"></canvas>
-</div>
+    
 
-<label>
-    <input type="color" id="color-pallet">
-</label>
-
-<label>
-    <input type="range" min="1" max="100" value="5" id="widthInput">
-</label>
-
-<button id="clear-canvas">キャンバスをクリア</button>
-
-<button id="download-canvas">ダウンロード</button>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
-<script src="app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.5.0/fabric.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

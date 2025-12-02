@@ -1,13 +1,44 @@
 body {
     display: flex;
-    flex-direction: column;
     align-items: center;
     font-family: Arial, sans-serif;
+    border: #270707 solid 2px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 #canvas-container {
-    border: 1px solid #ccc;
-    margin: 20px;
+    border: 2px solid #000000;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    border: #000000 solid 2px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.left_menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+}
+
+.right_menu {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    width: 200px;
+    border: #000000 solid 2px;
 }
 
 button {

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Floor Plan Editor (Grid Snap Fixed)</title>
+    <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            display: flex;
+            gap: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .main-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 6px 12px;
+            cursor: pointer;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        button:hover { background-color: #f9f9f9; }
+        button.add-btn { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; }
+        button.delete-btn { background-color: #ffebee; border-color: #f44336; color: #b71c1c; }
+
+        #container {
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 1px solid #ccc;
+            flex-grow: 1;
+        }
+
+        /* サイドバー */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+        .layer-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .layer-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            background: white;
+        }
+
+        .layer-item.active {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .layer-item.locked {
+            background-color: #fafafa;
+            color: #999;
+        }
+
+        .layer-name {
+            flex-grow: 1;
+            margin-left: 10px;
+            font-size: 14px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .icon-btn {
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            margin-left: 2px;
+        }
+        .icon-btn:hover { background-color: #eee; }
+        .icon-btn.hidden { color: #ccc; text-decoration: line-through; }
+
+        .sort-controls {
+            display: flex;
+            flex-direction: column;
+            margin-left: 5px;
+        }
+        .sort-btn {
+            font-size: 10px;
+            padding: 0;
+            width: 20px;
+            height: 12px;
+            line-height: 10px;
+            text-align: center;
+            border: none;
+            background: none;
+            color: #888;
+        }
+        .sort-btn:hover { color: #333; background-color: #ddd; }
+
+    </style>
+</head>
+<body>
+
+<div class="main-area">
+    <div class="toolbar">
+        <button class="add-btn" onclick="addObject('部屋', '#ffe0b2', 160, 160)">＋ 部屋</button>
+        <button class="add-btn" onclick="addObject('家具', '#bbdefb', 80, 80)">＋ 家具</button>
+        <button class="add-btn" onclick="addObject('文字', '#e0e0e0', 100, 40)">＋ 注釈</button>
+        <div style="flex-grow: 1;"></div>
+        <button class="delete-btn" onclick="deleteSelected()">削除</button>
+    </div>
+    <div id="container"></div>
+</div>
+
+<div class="sidebar">
+    <h3>レイヤー構成</h3>
+    <ul class="layer-list" id="layerList"></ul>
+    <div style="margin-top:20px; font-size:12px; color:#666;">
+        <p>※ リストの上が「最前面」です。</p>
+    </div>
+</div>
+
+<script>
+    // --- 設定 ---
+    const width = 800;
+    const height = 600;
+    const gridSize = 20; // グリッドサイズ
+
+    const stage = new Konva.Stage({
+        container: 'container',
+        width: width,
+        height: height,
+    });
+
+    // --- レイヤー管理 ---
+    const gridLayerInstance = new Konva.Layer();
+    const uiLayerInstance = new Konva.Layer();
+
+    let userLayers = [
+        { id: 'floor', name: '躯体・部屋', instance: new Konva.Layer() },
+        { id: 'furniture', name: '家具・設備', instance: new Konva.Layer() },
+        { id: 'annotation', name: '寸法・文字', instance: new Konva.Layer() }
+    ];
+
+    let activeLayerId = 'floor';
+
+    // --- 初期化 ---
+    stage.add(gridLayerInstance);
+    userLayers.forEach(l => stage.add(l.instance));
+    stage.add(uiLayerInstance);
+
+    const transformer = new Konva.Transformer({ keepRatio: false });
+    uiLayerInstance.add(transformer);
+
+    // --- Z-Index更新 ---
+    function updateZIndexes() {
+        gridLayerInstance.setZIndex(0);
+        userLayers.forEach((layer, index) => {
+            layer.instance.setZIndex(index + 1);
+        });
+        uiLayerInstance.moveToTop();
+    }
+
+    // --- UI描画 ---
+    function renderLayerPanel() {
+        const listEl = document.getElementById('layerList');
+        listEl.innerHTML = '';
+
+        listEl.appendChild(createFixedItem('グリッド (背景)'));
+
+        userLayers.forEach((layer, index) => {
+            const li = document.createElement('li');
+            li.className = `layer-item ${layer.id === activeLayerId ? 'active' : ''}`;
+
+            // レイヤー名
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'layer-name';
+            nameSpan.textContent = layer.name;
+
+            nameSpan.onclick = () => {
+                transformer.nodes([]);
+                uiLayerInstance.batchDraw();
+                setActiveLayer(layer.id);
+            };
+
+            // 表示切替
+            const eyeBtn = document.createElement('div');
+            eyeBtn.className = `icon-btn ${layer.instance.visible() ? '' : 'hidden'}`;
+            eyeBtn.textContent = '👁️';
+            eyeBtn.onclick = () => toggleVisibility(layer);
+
+            // 並べ替え
+            const sortDiv = document.createElement('div');
+            sortDiv.className = 'sort-controls';
+
+            if (index < userLayers.length - 1) {
+                const upBtn = document.createElement('button');
+                upBtn.className = 'sort-btn';
+                upBtn.textContent = '▲';
+                upBtn.onclick = () => moveLayer(index, 1);
+                sortDiv.appendChild(upBtn);
+            }
+
+            if (index > 0) {
+                const downBtn = document.createElement('button');
+                downBtn.className = 'sort-btn';
+                downBtn.textContent = '▼';
+                downBtn.onclick = () => moveLayer(index, -1);
+                sortDiv.appendChild(downBtn);
+            }
+
+            li.appendChild(eyeBtn);
+            li.appendChild(nameSpan);
+            li.appendChild(sortDiv);
+            listEl.appendChild(li);
+        });
+    }
+
+    function createFixedItem(name) {
+        const li = document.createElement('li');
+        li.className = 'layer-item locked';
+        li.innerHTML = `<span class="icon-btn">🔒</span><span class="layer-name" style="cursor:default">${name}</span>`;
+        return li;
+    }
+
+    // --- アクション ---
+
+    function moveLayer(currentIndex, direction) {
+        const newIndex = currentIndex + direction;
+        if (newIndex < 0 || newIndex >= userLayers.length) return;
+
+        const temp = userLayers[currentIndex];
+        userLayers[currentIndex] = userLayers[newIndex];
+        userLayers[newIndex] = temp;
+
+        updateZIndexes();
+        renderLayerPanel();
+    }
+
+    function setActiveLayer(id) {
+        activeLayerId = id;
+        renderLayerPanel();
+    }
+
+    function toggleVisibility(layerObj) {
+        const isVisible = layerObj.instance.visible();
+        if (isVisible) {
+            layerObj.instance.hide();
+            const selected = transformer.nodes();
+            if (selected.length > 0 && selected[0].getLayer() === layerObj.instance) {
+                transformer.nodes([]);
+            }
+        } else {
+            layerObj.instance.show();
+        }
+        renderLayerPanel();
+    }
+
+    // --- 描画・操作系 ---
+
+    function drawGrid() {
+        for (let i = 0; i <= width / gridSize; i++) {
+            gridLayerInstance.add(new Konva.Line({ points: [i * gridSize, 0, i * gridSize, height], stroke: '#eee', strokeWidth: 1 }));
+        }
+        for (let j = 0; j <= height / gridSize; j++) {
+            gridLayerInstance.add(new Konva.Line({ points: [0, j * gridSize, width, j * gridSize], stroke: '#eee', strokeWidth: 1 }));
+        }
+        gridLayerInstance.batchDraw();
+    }
+    drawGrid();
+
+    function addObject(name, color, w, h) {
+        const targetLayer = userLayers.find(l => l.id === activeLayerId);
+        if (!targetLayer.instance.visible()) {
+            alert('非表示のレイヤーには追加できません');
+            return;
+        }
+
+        // ▼▼▼ ここが復活・修正箇所です ▼▼▼
+        const group = new Konva.Group({
+            x: 100 + Math.random() * 50,
+            y: 100 + Math.random() * 50,
+            draggable: true,
+            // ドラッグ時に座標を丸める処理
+            dragBoundFunc: function(pos) {
+                return {
+                    x: Math.round(pos.x / gridSize) * gridSize,
+                    y: Math.round(pos.y / gridSize) * gridSize,
+                };
+            }
+        });
+        // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+        group.add(new Konva.Rect({
+            width: w, height: h, fill: color, stroke: '#666', strokeWidth: 1,
+            shadowColor: 'black', shadowBlur: 2, shadowOpacity: 0.2,
+            name: 'shape'
+        }));
+
+        group.add(new Konva.Text({
+            text: name, width: w, height: h, align: 'center', verticalAlign: 'middle',
+            fill: '#333', listening: false
+        }));
+
+        targetLayer.instance.add(group);
+
+        transformer.nodes([group]);
+        uiLayerInstance.moveToTop();
+        targetLayer.instance.batchDraw();
+    }
+
+    function deleteSelected() {
+        const nodes = transformer.nodes();
+        if(nodes.length){
+            nodes[0].destroy();
+            transformer.nodes([]);
+            uiLayerInstance.batchDraw();
+        }
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+            deleteSelected();
+        }
+    });
+
+    stage.on('click tap', (e) => {
+        if (e.target === stage) {
+            transformer.nodes([]);
+            return;
+        }
+
+        const group = e.target.findAncestor('Group', true);
+
+        if (group) {
+            const layer = group.getLayer();
+            const userLayer = userLayers.find(l => l.instance === layer);
+
+            if(userLayer && layer.visible()) {
+                transformer.nodes([group]);
+                setActiveLayer(userLayer.id);
+
+                uiLayerInstance.moveToTop();
+                uiLayerInstance.batchDraw();
+            }
+        }
+    });
+
+    stage.on('mouseover', function(e) {
+        if (e.target.hasName('shape')) document.body.style.cursor = 'move';
+    });
+    stage.on('mouseout', function() {
+        document.body.style.cursor = 'default';
+    });
+
+    renderLayerPanel();
+
+</script>
+</body>
+</html>
